@@ -61,11 +61,26 @@ PNG grayscale(PNG image) {
  * @return The image with a spotlight.
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      int distX = x - centerX;
+      int distY = y - centerY;
+      double dist = sqrt(distX * distX + distY * distY);
+
+      if (dist > 160) {
+        pixel.l *= .2;
+      }
+      else {
+        pixel.l *= (1.0 - (dist * .005));
+      }
+    }
+  }
 
   return image;
-  
 }
- 
+
 
 /**
  * Returns a image transformed to Illini colors.
@@ -73,11 +88,26 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * The hue of every pixel is set to the a hue value of either orange or
  * blue, based on if the pixel's hue value is closer to orange than blue.
  *
+ * Illini Orange: 11
+ * Illini Blue 216
+ *
  * @param image A PNG object which holds the image data to be modified.
  *
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+      if (pixel.h > 113.5 && pixel.h < 293.5) {
+        pixel.h = 216;
+      }
+      else {
+        pixel.h = 11;
+      }
+    }
+  }
+
 
   return image;
 }
@@ -96,6 +126,16 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+  for (unsigned x = 0; x < firstImage.width(); x++) {
+    for (unsigned y = 0; y < firstImage.height(); y++) {
+      HSLAPixel & firstPixel = firstImage.getPixel(x, y);
+      HSLAPixel & secondPixel = secondImage.getPixel(x, y);
+      if (secondPixel.l == 1.0) {
+        firstPixel.l = std::min(firstPixel.l + .2, 1.0);
+      }
+    }
+  }
+
 
   return firstImage;
 }
