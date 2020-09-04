@@ -35,7 +35,7 @@ HSLAPixel* myFavoriteColor() {
 
 void sketchify(std::string inputFile, std::string outputFile) {
     // Load in.png
-    PNG* original;
+    PNG * original = new PNG();
     original->readFromFile(inputFile);
     unsigned width = original->width();
     unsigned height = original->height();
@@ -68,6 +68,7 @@ void sketchify(std::string inputFile, std::string outputFile) {
     output->writeToFile(outputFile);
 
     // Clean up memory
+    delete original;
     delete myPixel;
     delete output;
 }
