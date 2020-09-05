@@ -1,5 +1,5 @@
-#include <string>
 #include <cmath>
+#include <string>
 
 #include "cs225/HSLAPixel.h"
 #include "cs225/PNG.h"
@@ -94,9 +94,7 @@ PNG myArt(unsigned int width, unsigned int height) {
       this->origin = origin;
       this->direction = direction;
     }
-    Ray normalized() {
-      return Ray(origin, direction.normalized());
-    }
+    Ray normalized() { return Ray(origin, direction.normalized()); }
   };
 
   class Sphere {
@@ -231,17 +229,8 @@ PNG myArt(unsigned int width, unsigned int height) {
   Vector3 nextX = right * ((2.0 * screenX) / (float)(width - 1));
   Vector3 nextY = up * ((2.0 * screenY) / (float)(height - 1));
   Vector3 initDir = center - right * screenX + up * screenY;
-  
-  auto a = RGBPixel(.5, .6, .2);
-  auto b = a.toHSLA();
-  std::cout << b.h << " " << b.s << " " << b.l << " " << b.a << std::endl;
-
 
   Sphere s1(1.0, Vector3(0.0, 0.0, 4.0));
-
-  RGBPixel * pixels = new RGBPixel[width*height];
-
-
 
   Ray r;
   r.origin = eyePos;
@@ -249,19 +238,20 @@ PNG myArt(unsigned int width, unsigned int height) {
   for (auto x = 0; x < width; x++) {
     r.direction = initDir + nextX * (float)x;
     for (auto y = 0; y < height; y++) {
-      auto pixel = RGBPixel(0,0,0);
+      auto pixel = RGBPixel(0, 0, 0);
       float t;
       Vector3 q;
       Ray normed = r.normalized();
       if (s1.intersect(normed, t, q)) {
+        //q.print();
         Vector3 normal = (q - s1.center).normalize();
-        pixel = RGBPixel(normal.x, normal.y, normal.z);
+        //normal.print();
+        pixel = RGBPixel(fabs(normal.x), fabs(normal.y), fabs(normal.z));
       }
       png.getPixel(x, y) = pixel.toHSLA();
       r.direction = r.direction - nextY;
     }
   }
 
-  delete[] pixels;
   return png;
 }
