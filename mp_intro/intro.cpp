@@ -130,8 +130,9 @@ PNG myArt(unsigned int width, unsigned int height) {
       t = -b - sqrt(discr);
 
       // If t is negative, ray started inside sphere so clamp t to zero
-      if (t < 0.0f) t = 0.0f;
+      if (t < 0.0f) t = -t;
       q = r.origin + (r.direction * t);
+      q.print();
 
       return true;
     }
@@ -220,7 +221,7 @@ PNG myArt(unsigned int width, unsigned int height) {
   Vector3 right = upInput.cross(center).normalized();
   Vector3 up = center.cross(right);
 
-  float screenX = std::tanf(fov / 2.0);
+  float screenX = std::tan(fov / 2.0);
   float screenY =
       screenX *
       ((float)height /
@@ -235,9 +236,9 @@ PNG myArt(unsigned int width, unsigned int height) {
   Ray r;
   r.origin = eyePos;
 
-  for (auto x = 0; x < width; x++) {
+  for (unsigned x = 0; x < width; x++) {
     r.direction = initDir + nextX * (float)x;
-    for (auto y = 0; y < height; y++) {
+    for (unsigned y = 0; y < height; y++) {
       auto pixel = RGBPixel(0, 0, 0);
       float t;
       Vector3 q;
@@ -246,7 +247,7 @@ PNG myArt(unsigned int width, unsigned int height) {
         //q.print();
         Vector3 normal = (q - s1.center).normalize();
         //normal.print();
-        pixel = RGBPixel(fabs(normal.x), fabs(normal.y), fabs(normal.z));
+        pixel = RGBPixel(abs(normal.x), abs(normal.y), abs(normal.z));
       }
       png.getPixel(x, y) = pixel.toHSLA();
       r.direction = r.direction - nextY;
