@@ -132,7 +132,6 @@ PNG myArt(unsigned int width, unsigned int height) {
       // If t is negative, ray started inside sphere so clamp t to zero
       if (t < 0.0f) t = -t;
       q = r.origin + (r.direction * t);
-      q.print();
 
       return true;
     }
