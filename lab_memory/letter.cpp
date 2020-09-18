@@ -9,6 +9,11 @@ Letter::Letter() : letter('-'), count(0)
 {
 }
 
+Letter::Letter(const Letter & other) {
+    letter = other.letter;
+    count = other.count;
+}
+
 void Letter::addStudent()
 {
     count++;

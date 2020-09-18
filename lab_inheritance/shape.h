@@ -35,7 +35,7 @@ class Shape : public Drawable
      */
     Shape(const Vector2& center, const cs225::HSLAPixel& color);
 
-    ~Shape()
+    virtual ~Shape()
     { /* Nothing */
     }
 
@@ -83,6 +83,6 @@ class Shape : public Drawable
      */
     cs225::HSLAPixel color() const;
 
-    void draw(cs225::PNG* canvas) const;
+    virtual void draw(cs225::PNG* canvas) const;
 };
 

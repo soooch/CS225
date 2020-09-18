@@ -25,6 +25,7 @@ class Letter
      * The letter should be set by the client.
      */
     Letter();
+    Letter(const Letter & other);
 
     /**
      * Adds one additional student to the letter group.
