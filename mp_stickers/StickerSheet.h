@@ -6,9 +6,20 @@
 
 #include "Image.h"
 
+class Sticker {
+  public:
+  Image * picture;
+  unsigned x, y;
+
+  Sticker();
+  Sticker(Image * picture, unsigned x, unsigned y);
+  Sticker(Image picture, unsigned x, unsigned y);
+  ~Sticker();
+};
+
 class StickerSheet {
   unsigned max_;
-  Image ** stickers_;
+  Sticker * stickers_;
   public:
   StickerSheet(const Image &picture, unsigned max);
   ~StickerSheet();
@@ -22,5 +33,4 @@ class StickerSheet {
   Image render() const;
   private:
   void copy_(const StickerSheet &other);
-  void deleteStickers();
 };
