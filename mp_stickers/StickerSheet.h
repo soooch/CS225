@@ -9,7 +9,6 @@
 class StickerSheet {
   unsigned max_;
   Image ** stickers_;
-  Image basePicture_;
   public:
   StickerSheet(const Image &picture, unsigned max);
   ~StickerSheet();
@@ -23,4 +22,5 @@ class StickerSheet {
   Image render() const;
   private:
   void copy_(const StickerSheet &other);
+  void deleteStickers();
 };
