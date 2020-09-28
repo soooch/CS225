@@ -94,8 +94,31 @@ template <typename T>
 void scramble(queue<T>& q)
 {
     stack<T> s;
-    // optional: queue<T> q2;
 
     // Your code here
+    
+    unsigned qSize = q.size();
+    unsigned blockSize = 1;
+    unsigned numScrambled = 0;
+    while (numScrambled < qSize) {
+        for (unsigned i = 0; i < blockSize; i++) {
+            q.push(q.front());
+            q.pop();
+        }
+        numScrambled += blockSize;
+        blockSize++;
+        blockSize = std::min(blockSize, qSize - numScrambled);
+        for (unsigned i = 0; i < blockSize; i++) {
+            s.push(q.front());
+            q.pop();
+        }
+        for (unsigned i = 0; i < blockSize; i++) {
+            q.push(s.top());
+            s.pop();
+        }
+        numScrambled += blockSize;
+        blockSize++;
+        blockSize = std::min(blockSize, qSize - numScrambled);
+    }
 }
 }
