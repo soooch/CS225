@@ -18,7 +18,7 @@ Sticker::Sticker(Image picture, unsigned x, unsigned y) {
 }
 
 Sticker::~Sticker() {
-  //delete picture;
+  delete picture;
 }
 
 
@@ -84,24 +84,25 @@ Image *StickerSheet::getSticker(unsigned index) {
 Image StickerSheet::render() const {
   unsigned maxWidth = 0, maxHeight = 0;
   unsigned numStickers = 0;
-  Sticker * validStickers = new Sticker[max_];
+  Sticker ** validStickers = new Sticker*[max_];
   for (unsigned i = 0; i < max_; i++) {
     if (stickers_[i].picture != NULL) {
-      validStickers[numStickers++] = stickers_[i];
+      validStickers[numStickers++] = &stickers_[i];
       maxWidth = std::max(maxWidth, stickers_[i].picture->width() + stickers_[i].x);
       maxHeight = std::max(maxHeight, stickers_[i].picture->height() + stickers_[i].y);
     }
   }
   Image output(maxWidth, maxHeight);
   for (unsigned i = 0; i < numStickers; i++) {
-    for (unsigned canvasX = validStickers[i].x, stickerX = 0; stickerX < validStickers[i].picture->width(); canvasX++, stickerX++) {
-      for (unsigned canvasY = validStickers[i].y, stickerY = 0; stickerY < validStickers[i].picture->height(); canvasY++, stickerY++) {
-        if (validStickers[i].picture->getPixel(stickerX, stickerY).a != 0.0) {
-          output.getPixel(canvasX, canvasY) = validStickers[i].picture->getPixel(stickerX, stickerY);
+    for (unsigned canvasX = validStickers[i]->x, stickerX = 0; stickerX < validStickers[i]->picture->width(); canvasX++, stickerX++) {
+      for (unsigned canvasY = validStickers[i]->y, stickerY = 0; stickerY < validStickers[i]->picture->height(); canvasY++, stickerY++) {
+        if (validStickers[i]->picture->getPixel(stickerX, stickerY).a != 0.0) {
+          output.getPixel(canvasX, canvasY) = validStickers[i]->picture->getPixel(stickerX, stickerY);
         }
       }
     }
   }
+  delete[] validStickers;
   return output;
 }
 

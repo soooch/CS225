@@ -6,8 +6,9 @@
 template <class T>
 List<T>::List() { 
   // @TODO: graded in MP3.1
-    ListNode* head_ = NULL;
-    ListNode* tail_ = NULL;
+    head_ = NULL;
+    tail_ = NULL;
+    length_ = 0;
 }
 
 /**
@@ -17,7 +18,7 @@ List<T>::List() {
 template <typename T>
 typename List<T>::ListIterator List<T>::begin() const {
   // @TODO: graded in MP3.1
-  return List<T>::ListIterator(NULL);
+  return List<T>::ListIterator(head_);
 }
 
 /**
@@ -37,6 +38,14 @@ typename List<T>::ListIterator List<T>::end() const {
 template <typename T>
 void List<T>::_destroy() {
   /// @todo Graded in MP3.1
+  tail_ = NULL;
+  if (head_ == NULL) return;
+  while (head_->next != NULL) {
+    head_ = head_->next;
+    delete head_->prev;
+  }
+  head_ = NULL;
+  length_ = 0;
 }
 
 /**
@@ -58,6 +67,7 @@ void List<T>::insertFront(T const & ndata) {
   if (tail_ == NULL) {
     tail_ = newNode;
   }
+  head_ = newNode;
   
 
   length_++;
@@ -73,6 +83,19 @@ void List<T>::insertFront(T const & ndata) {
 template <typename T>
 void List<T>::insertBack(const T & ndata) {
   /// @todo Graded in MP3.1
+  ListNode * newNode = new ListNode(ndata);
+  newNode->next = NULL;
+  newNode->prev = tail_;
+
+  if (tail_ != NULL) {
+    tail_->next = newNode;
+  }
+  if (head_ == NULL) {
+    head_ = newNode;
+  }
+  tail_ = newNode;
+
+  length_++;
 }
 
 /**
@@ -96,7 +119,7 @@ typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
   /// @todo Graded in MP3.1
   ListNode * curr = start;
 
-  for (int i = 0; i < splitPoint || curr != NULL; i++) {
+  for (int i = 0; i < splitPoint && curr != NULL; i++) {
     curr = curr->next;
   }
 
@@ -105,7 +128,7 @@ typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
       curr->prev = NULL;
   }
 
-  return NULL;
+  return curr;
 }
 
 /**
@@ -120,7 +143,30 @@ typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
   */
 template <typename T>
 void List<T>::tripleRotate() {
+  static const int rotateSize = 3;
   // @todo Graded in MP3.1
+  if (this->length_ < rotateSize) return;
+  ListNode * curr = head_;
+  head_ = head_->next;
+  for (int i = 0; i < length_ / rotateSize; i++) {
+    ListNode * first = curr;
+    curr = curr->next;
+    ListNode * second = curr;
+    for (int i = 0; i < rotateSize - 2; i++) { curr = curr->next;}
+    ListNode * last = curr;
+    curr = curr->next;
+
+    second->prev = first->prev;
+    first->next = curr;
+    first->prev = last;
+    last->next = first;
+    if (second->prev != NULL) second->prev->next = second;
+    if (curr != NULL) curr->prev = first;
+
+  }
+  while (tail_->next != NULL) {
+    tail_ = tail_->next;
+  }
 }
 
 

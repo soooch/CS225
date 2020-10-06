@@ -15,7 +15,8 @@ int main() {
   StickerSheet sheet(alma, 5);
   sheet.addSticker(i, 20, 200);
   sheet.addSticker(i, 50, 200);
-  //sheet.removeSticker(1);
+  sheet.removeSticker(1);
 
   sheet.render().writeToFile("dsf.png");
+  sheet.render().writeToFile("dsf2.png");
 }
