@@ -2,8 +2,6 @@
  * @file list.cpp
  * Doubly Linked List (MP 3).
  */
-#include <iostream>
-
 template <class T>
 List<T>::List() { 
   // @TODO: graded in MP3.1
