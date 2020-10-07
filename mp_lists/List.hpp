@@ -236,8 +236,6 @@ void List<T>::reverseNth(int n) {
     curr = curr->next;
   }
   if (curr != NULL) reverse(curr, tail_);
-
-  
 }
 
 
@@ -279,7 +277,48 @@ void List<T>::mergeWith(List<T> & otherList) {
 template <typename T>
 typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) {
   /// @todo Graded in MP3.2
-  return NULL;
+  ListNode * merged, * curr, * insertStart, * insertEnd;
+  if (first->data < second->data) {
+    curr = merged = first;
+    insertStart = insertEnd = second;
+  }
+  else {
+    curr = merged = second;
+    insertStart = insertEnd = first;
+  }
+  
+  while (curr->next != NULL) {
+    while (curr->next != NULL) {
+      if (curr->next->data < insertStart->data) {
+        curr = curr->next;
+      }
+      else {
+        break;
+      }
+    }
+    if (curr->next == NULL) break;
+  
+    while (insertEnd->next != NULL) {
+      if (insertEnd->next->data < curr->next->data) {
+        insertEnd = insertEnd->next;
+      }
+      else {
+        break;
+      }
+    }
+    ListNode * insertNew = insertEnd->next;
+    insertEnd->next = curr->next;
+    curr->next->prev = insertEnd;
+    if (insertNew == NULL) break;
+    insertStart->prev = curr;
+    curr->next = insertStart;
+    curr = insertEnd->next;
+    insertStart = insertEnd = insertNew;
+  }
+  insertStart->prev = curr;
+  curr->next = insertStart;
+
+  return merged;
 }
 
 /**
@@ -296,5 +335,7 @@ typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) 
 template <typename T>
 typename List<T>::ListNode* List<T>::mergesort(ListNode * start, int chainLength) {
   /// @todo Graded in MP3.2
+  if (chainLength == 1) return start;
+  return merge(mergesort(split(start, chainLength/2), chainLength - chainLength/2), mergesort(start, chainLength/2));
   return NULL;
 }
