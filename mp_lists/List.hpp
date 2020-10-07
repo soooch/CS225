@@ -2,6 +2,7 @@
  * @file list.cpp
  * Doubly Linked List (MP 3).
  */
+#include <iostream>
 
 template <class T>
 List<T>::List() { 
@@ -192,6 +193,28 @@ void List<T>::reverse() {
 template <typename T>
 void List<T>::reverse(ListNode *& startPoint, ListNode *& endPoint) {
   /// @todo Graded in MP3.2
+  std::swap(startPoint, endPoint);
+
+  if (endPoint == head_) { 
+    head_ = startPoint;
+  }
+  else if (startPoint != head_) {
+    endPoint->prev->next = startPoint;
+  }
+  if (startPoint == tail_) { 
+    tail_ = endPoint;
+  }
+  else if (endPoint != tail_) {
+    startPoint->next->prev = endPoint;
+  }
+
+  ListNode * curr = startPoint;
+  while (curr != endPoint) {
+    std::swap(curr->prev, curr->next);
+    curr = curr->next;
+  }
+  std::swap(endPoint->prev, endPoint->next);
+  std::swap(startPoint->prev, endPoint->next);
 }
 
 /**
@@ -203,6 +226,18 @@ void List<T>::reverse(ListNode *& startPoint, ListNode *& endPoint) {
 template <typename T>
 void List<T>::reverseNth(int n) {
   /// @todo Graded in MP3.2
+  ListNode * curr = head_;
+  for (int i = 0; i < length_ / n; i++) {
+    ListNode * start = curr;
+    for (int i = 0; i < n - 1; i++) {
+      curr = curr->next;
+    }
+    reverse(start, curr);
+    curr = curr->next;
+  }
+  if (curr != NULL) reverse(curr, tail_);
+
+  
 }
 
 
