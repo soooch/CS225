@@ -89,24 +89,6 @@ void AVLTree<K, V>::rebalance(Node*& subtree)
         }
     }
     subtree->height = std::max(heightOrNeg1(subtree->left), heightOrNeg1(subtree->right)) + 1;
-    // debug prints
-    if (false) {
-    std::cout << "b: " << b << std::endl;
-    std::cout << subtree->key << ": " << subtree->height << std::endl;
-    if (subtree->left == NULL) {
-        std::cout << "left == NULL" << std::endl;
-    }
-    else {
-        std::cout << subtree->left->key << ": " << subtree->left->height << std::endl;
-    }
-    if (subtree->right == NULL) {
-        std::cout << "right == NULL" << std::endl;
-    }
-    else {
-        std::cout << subtree->right->key << ": " << subtree->right->height << std::endl;
-    }
-    std::cout << std::endl;
-    }
 }
 
 template <class K, class V>
@@ -176,16 +158,9 @@ void AVLTree<K, V>::remove(Node*& subtree, const K& key)
                 remove(pred->right, pred->right->key);
             }
             else {
-                swap(subtree, subtree->left);
-                if (subtree->left->left != NULL) {
-                    swap(subtree->left, subtree->left->left);
-                    delete subtree->left->left;
-                    subtree->left->left = NULL;
-                }
-                else {
-                    delete subtree->left;
-                    subtree->left = NULL;
-                }
+                Node * end = subtree->left->left;
+                delete subtree->left;
+                subtree->left = end;
             }
         } else {
             /* one-child remove */
