@@ -41,7 +41,7 @@ ImageTraversal::Iterator DFS::begin() {
   while (!pointStack.empty()) {
     Point curr = pointStack.top();
     pointStack.pop();
-    if (std::find(points_.begin(), points_.end(), curr) == points_.end()) {
+    if (std::find(points_.begin(), points_.end(), curr) == points_.end() && calculateDelta(startPixel_, png_.getPixel(curr.x, curr.y)) < tolerance_) {
 
       points_.push_back(curr);
 
@@ -67,7 +67,6 @@ ImageTraversal::Iterator DFS::begin() {
       }
     }
   }
-  points_.remove_if([this](Point point) {return calculateDelta(startPixel_, png_.getPixel(point.x, point.y)) >= tolerance_;});
   return ImageTraversal::Iterator(points_);
 }
 
