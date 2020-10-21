@@ -22,8 +22,12 @@
  * @param tolerance If the current point is too different (difference larger than tolerance) with the start point,
  * it will not be included in this DFS
  */
-DFS::DFS(const PNG & png, const Point & start, double tolerance) {  
+DFS::DFS(const PNG & png, const Point & start, double tolerance) {
   /** @todo [Part 1] */
+  png_ = png;
+  tolerance_ = tolerance;
+  points_ = std::list<Point>(1, start);
+  startPixel_ = png.getPixel(start.x, start.y);
 }
 
 /**
@@ -31,7 +35,40 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator DFS::begin() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator();
+  std::stack<Point> pointStack;
+  pointStack.push(points_.front());
+  points_.pop_front();
+  while (!pointStack.empty()) {
+    Point curr = pointStack.top();
+    pointStack.pop();
+    if (std::find(points_.begin(), points_.end(), curr) == points_.end()) {
+
+      points_.push_back(curr);
+
+      
+      if (curr.x < png_.width() - 1) {
+        Point right(curr.x + 1, curr.y);
+        pointStack.push(right);
+      }
+      
+      if (curr.y < png_.height() - 1) {
+        Point below(curr.x, curr.y + 1);
+        pointStack.push(below);
+      }
+      
+      if (curr.x > 0) {
+        Point left(curr.x - 1, curr.y);
+        pointStack.push(left);
+      }
+      
+      if (curr.y > 0) {
+        Point above(curr.x, curr.y - 1);
+        pointStack.push(above);
+      }
+    }
+  }
+  points_.remove_if([this](Point point) {return calculateDelta(startPixel_, png_.getPixel(point.x, point.y)) >= tolerance_;});
+  return ImageTraversal::Iterator(points_);
 }
 
 /**
@@ -39,7 +76,7 @@ ImageTraversal::Iterator DFS::begin() {
  */
 ImageTraversal::Iterator DFS::end() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator();
+  return ImageTraversal::Iterator(empty_);
 }
 
 /**
@@ -47,6 +84,7 @@ ImageTraversal::Iterator DFS::end() {
  */
 void DFS::add(const Point & point) {
   /** @todo [Part 1] */
+  points_.push_front(point);
 }
 
 /**
@@ -54,7 +92,9 @@ void DFS::add(const Point & point) {
  */
 Point DFS::pop() {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  Point ret = points_.front();
+  points_.pop_front();
+  return ret;
 }
 
 /**
@@ -62,7 +102,7 @@ Point DFS::pop() {
  */
 Point DFS::peek() const {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  return points_.front();
 }
 
 /**
@@ -70,5 +110,5 @@ Point DFS::peek() const {
  */
 bool DFS::empty() const {
   /** @todo [Part 1] */
-  return true;
+  return points_.empty();
 }

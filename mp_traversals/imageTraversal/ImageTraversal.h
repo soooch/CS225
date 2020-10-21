@@ -4,6 +4,7 @@
 #pragma once
 
 #include <iterator>
+#include <list>
 #include "../cs225/HSLAPixel.h"
 #include "../cs225/PNG.h"
 #include "../Point.h"
@@ -36,11 +37,12 @@ public:
 
     /** @todo [Part 1] */
     /** add member functions if neccesary*/
+    Iterator(std::list<Point> &points) : points_(points) {}
 
   private:
     /** @todo [Part 1] */
     /** add private members here if neccesary*/
-
+    std::list<Point> &points_;
   };
 
   /**
@@ -76,6 +78,12 @@ public:
    */
   virtual bool empty() const = 0;
 
-private:
-  static double calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2);  
+protected:
+  std::list<Point> points_;
+  std::list<Point> empty_ = std::list<Point>();
+  PNG png_;
+  cs225::HSLAPixel startPixel_;
+  double tolerance_;
+
+  static double calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2);
 };

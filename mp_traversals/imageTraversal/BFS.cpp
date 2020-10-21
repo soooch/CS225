@@ -24,6 +24,10 @@ using namespace cs225;
  */
 BFS::BFS(const PNG & png, const Point & start, double tolerance) {  
   /** @todo [Part 1] */
+  png_ = png;
+  tolerance_ = tolerance;
+  points_ = std::list<Point>(1, start);
+  startPixel_ = png.getPixel(start.x, start.y);
 }
 
 /**
@@ -31,7 +35,39 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator BFS::begin() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator();
+  std::queue<Point> pointQueue;
+  pointQueue.push(points_.front());
+  points_.pop_front();
+  while (!pointQueue.empty()) {
+    Point curr = pointQueue.front();
+    pointQueue.pop();
+    if (std::find(points_.begin(), points_.end(), curr) == points_.end()) {
+      
+      points_.push_back(curr);
+      
+      if (curr.x < png_.width() - 1) {
+        Point right(curr.x + 1, curr.y);
+        pointQueue.push(right);
+      }
+      
+      if (curr.y < png_.height() - 1) {
+        Point below(curr.x, curr.y + 1);
+        pointQueue.push(below);
+      }
+      
+      if (curr.x > 0) {
+        Point left(curr.x - 1, curr.y);
+        pointQueue.push(left);
+      }
+      
+      if (curr.y > 0) {
+        Point above(curr.x, curr.y - 1);
+        pointQueue.push(above);
+      }
+    }
+  }
+  points_.remove_if([this](Point point) {return calculateDelta(startPixel_, png_.getPixel(point.x, point.y)) >= tolerance_;});
+  return ImageTraversal::Iterator(points_);
 }
 
 /**
@@ -39,7 +75,7 @@ ImageTraversal::Iterator BFS::begin() {
  */
 ImageTraversal::Iterator BFS::end() {
   /** @todo [Part 1] */
-  return ImageTraversal::Iterator();
+  return ImageTraversal::Iterator(empty_);
 }
 
 /**
@@ -47,6 +83,7 @@ ImageTraversal::Iterator BFS::end() {
  */
 void BFS::add(const Point & point) {
   /** @todo [Part 1] */
+  points_.push_back(point);
 }
 
 /**
@@ -54,7 +91,9 @@ void BFS::add(const Point & point) {
  */
 Point BFS::pop() {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  Point ret = points_.front();
+  points_.pop_front();
+  return ret;
 }
 
 /**
@@ -62,7 +101,7 @@ Point BFS::pop() {
  */
 Point BFS::peek() const {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  return points_.front();
 }
 
 /**
@@ -70,5 +109,5 @@ Point BFS::peek() const {
  */
 bool BFS::empty() const {
   /** @todo [Part 1] */
-  return true;
+  return points_.empty();
 }
