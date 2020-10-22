@@ -36,14 +36,16 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
 ImageTraversal::Iterator DFS::begin() {
   /** @todo [Part 1] */
   std::stack<Point> pointStack;
+  std::vector<bool> pointVisited(png_.height() * png_.width(), false);
   pointStack.push(points_.front());
   points_.pop_front();
   while (!pointStack.empty()) {
     Point curr = pointStack.top();
     pointStack.pop();
-    if (std::find(points_.begin(), points_.end(), curr) == points_.end() && calculateDelta(startPixel_, png_.getPixel(curr.x, curr.y)) < tolerance_) {
+    if (!pointVisited[curr.y * png_.width() + curr.x] && calculateDelta(startPixel_, png_.getPixel(curr.x, curr.y)) < tolerance_) {
 
       points_.push_back(curr);
+      pointVisited[curr.y * png_.width() + curr.x] = true;
 
       
       if (curr.x < png_.width() - 1) {

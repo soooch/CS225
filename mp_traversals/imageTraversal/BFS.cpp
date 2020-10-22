@@ -36,14 +36,16 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
 ImageTraversal::Iterator BFS::begin() {
   /** @todo [Part 1] */
   std::queue<Point> pointQueue;
+  std::vector<bool> pointVisited(png_.height() * png_.width(), false);
   pointQueue.push(points_.front());
   points_.pop_front();
   while (!pointQueue.empty()) {
     Point curr = pointQueue.front();
     pointQueue.pop();
-    if (std::find(points_.begin(), points_.end(), curr) == points_.end() && calculateDelta(startPixel_, png_.getPixel(curr.x, curr.y)) < tolerance_) {
+    if (!pointVisited[curr.y * png_.width() + curr.x] && calculateDelta(startPixel_, png_.getPixel(curr.x, curr.y)) < tolerance_) {
       
       points_.push_back(curr);
+      pointVisited[curr.y * png_.width() + curr.x] = true;
       
       if (curr.x < png_.width() - 1) {
         Point right(curr.x + 1, curr.y);
