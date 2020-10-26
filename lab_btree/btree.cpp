@@ -147,8 +147,6 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
     parent->children.insert(child_itr, new_right);
     parent->elements.insert(elem_itr, *mid_elem_itr);
     auto right_elem_start = child->elements.erase(mid_elem_itr);
-    //new_right->children.assign(mid_child_itr, child->children.end());
-    //new_right->elements.assign(right_elem_start, child->elements.end());
     std::move(mid_child_itr, child->children.end(), std::back_inserter(new_right->children));
     child->children.erase(mid_child_itr, child->children.end());
     std::move(right_elem_start, child->elements.end(), std::back_inserter(new_right->elements));
