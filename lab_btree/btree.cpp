@@ -174,12 +174,8 @@ void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
      * and thus needs to be split to maintain order.
      */
     size_t first_larger_idx = insertion_idx(subroot->elements, pair);
-   //  std::cout << "first larger idx: " << first_larger_idx << std::endl;
-   //  std::cout << "node:" << std::endl;
-   //  std::cout << *subroot << std::endl;
     /* TODO Your code goes here! */
     if (subroot->is_leaf) {
-   //      std::cout << "node is a leaf" << std::endl;
         if (subroot->elements.size() > first_larger_idx) {
             if (!(subroot->elements[first_larger_idx] == pair)) {
                 auto insert_itr = subroot->elements.begin() + first_larger_idx;
@@ -189,18 +185,11 @@ void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
         else {
             subroot->elements.push_back(pair);
         }
-   //      std::cout << "children updated:" << std::endl;
-   //      std::cout << *subroot << std::endl;
     }
     else {
         insert(subroot->children[first_larger_idx], pair);
         if (subroot->children[first_larger_idx]->elements.size() >= order) {
-   //          std::cout << "splitting children" << std::endl;
-   //          std::cout << "before: " << std::endl;
-   //          std::cout << *subroot << std::endl;
             split_child(subroot, first_larger_idx);
-   //          std::cout << "after: " << std::endl;
-   //          std::cout << *subroot << std::endl;
         }
     }
 }
