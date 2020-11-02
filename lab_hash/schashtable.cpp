@@ -54,10 +54,10 @@ void SCHashTable<K, V>::insert(K const& key, V const& value)
      * @todo Implement this function.
      *
      */
-    table[hashes::hash(key, size)].push_front(std::make_pair(key, value));
     elems++;
     if (shouldResize())
         resizeTable();
+    table[hashes::hash(key, size)].push_front(std::make_pair(key, value));
 }
 
 template <class K, class V>
@@ -156,7 +156,7 @@ void SCHashTable<K, V>::resizeTable()
     for (size_t i = 0; i < size; i++) {
         typename std::list<std::pair<K, V>>::iterator it;
         for (it = table[i].begin(); it != table[i].end(); it++) {
-            newTable[hashes::hash(it->first, newSize)].push_front(*it);
+            newTable[hashes::hash(it->first, newSize)].push_front(std::move(*it));
         }
     }
     delete[] table;
