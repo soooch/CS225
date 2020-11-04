@@ -259,24 +259,17 @@ class KDTree
     /**
      * @todo Add your helper functions here.
      */
-    KDTreeNode * buildKDTree(vector<Point<Dim>>& points, 
-                             int first, 
-                             int last, 
-                             int curDim);
+    //KDTreeNode * buildKDTree(typename vector<Point<Dim>>::iterator first, typename vector<Point<Dim>>::iterator last, int curDim);
 
-    void select(vector<Point<Dim>>& points,
-                    int first,
-                    int last, 
-                    int k, 
-                    int curDim);
-    int partition(vector<Point<Dim>>& points, 
-                  int first, 
-                  int last, 
-                  int pivotIndex, 
-                  int curDim);
+    //void select(typename vector<Point<Dim>>::iterator first, typename vector<Point<Dim>>::iterator last, int curDim);
+    KDTreeNode * buildKDTree(vector<Point<Dim>>& points, int first, int last, int curDim);
+
+    void select(vector<Point<Dim>>& points, int first, int last, int k, int curDim);
+    int partition(vector<Point<Dim>>& points, int first, int last, int pivotIndex, int curDim);
     
     KDTreeNode * copyKDTree(KDTreeNode * other);
-    KDTreeNode * deleteKDTree();
+    void deleteKDTree(KDTreeNode * curr);
+    void findNearestNeighbor(const Point<Dim>& query, Point<Dim>& curBest, KDTreeNode * node, int curDim) const;
   };
 
 #include "kdtree.hpp"

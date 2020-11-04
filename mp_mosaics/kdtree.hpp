@@ -36,6 +36,51 @@ bool KDTree<Dim>::shouldReplace(const Point<Dim>& target,
   return (distPotential != distBest) ? distPotential < distBest : potential < currentBest;
 }
 
+//// Iterator version
+//template <int Dim>
+//KDTree<Dim>::KDTree(const vector<Point<Dim>>& newPoints)
+//{
+//    /**
+//     * @todo Implement this function!
+//     */
+//    if ((size = newPoints.size())) {
+//      vector<Point<Dim>> points(newPoints);
+//      root = buildKDTree(points.begin(), points.end() - 1, 0);
+//    }
+//    else {
+//      root = NULL;
+//    }
+//}
+//
+//template <int Dim>
+//typename KDTree<Dim>::KDTreeNode * KDTree<Dim>::buildKDTree(typename vector<Point<Dim>>::iterator first, 
+//                                                            typename vector<Point<Dim>>::iterator last, 
+//                                                            int curDim)
+//{
+//  if (first < last) {
+//    auto median = first + (last - first) / 2;
+//    std::iter_swap(median, last);
+//    auto pivot = first;
+//    for (auto it = first; it != last; ++it) {
+//      if (smallerDimVal(*it, *last, curDim)) {
+//        std::iter_swap(pivot, it);
+//        ++pivot;
+//      }
+//    }
+//    std::iter_swap(last, pivot);
+//    KDTreeNode * newNode = new KDTreeNode(*median);
+//    newNode->left = buildKDTree(first, median - 1, (curDim + 1) % Dim);
+//    newNode->right = buildKDTree(median + 1, last, (curDim + 1) % Dim);
+//    return newNode;
+//  }
+//  else {
+//    return (first == last) ? new KDTreeNode(*first) : NULL;
+//  }
+//}
+
+
+
+// Array access version
 template <int Dim>
 KDTree<Dim>::KDTree(const vector<Point<Dim>>& newPoints)
 {
@@ -47,6 +92,7 @@ KDTree<Dim>::KDTree(const vector<Point<Dim>>& newPoints)
     root = buildKDTree(points, 0, points.size() - 1, 0);
 }
 
+// TODO: could do this with iterators instead of ints. maybe if u have time
 template <int Dim>
 typename KDTree<Dim>::KDTreeNode * KDTree<Dim>::buildKDTree(vector<Point<Dim>>& points, 
                                                    int first, 
@@ -132,8 +178,10 @@ const KDTree<Dim>& KDTree<Dim>::operator=(const KDTree<Dim>& rhs) {
   /**
    * @todo Implement this function!
    */
-  if (*this != rhs) {
-    *this = KDTree(rhs);
+  if (this != &rhs) {
+    delete this;
+    size = rhs.size;
+    root = copyKDTree(rhs.root);
   }
 
   return *this;
@@ -144,16 +192,15 @@ KDTree<Dim>::~KDTree() {
   /**
    * @todo Implement this function!
    */
-  
+  deleteKDTree(root);
 }
 
 template <int Dim>
-typename KDTree<Dim>::KDTreeNode * KDTree<Dim>::deleteKDTree() {
-  if (other == NULL) return NULL;
-  KDTreeNode * tmp = new KDTreeNode(other->point);
-  deleteKDTree(other->left);
-  deleteKDTree(other->right);
-  delete tmp;
+void KDTree<Dim>::deleteKDTree(KDTreeNode * curr) {
+  if (curr == NULL) return;
+  deleteKDTree(curr->left);
+  deleteKDTree(curr->right);
+  delete curr;
 }
 
 template <int Dim>
@@ -162,7 +209,34 @@ Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
     /**
      * @todo Implement this function!
      */
+    Point<Dim> curBest(root->point);
+    findNearestNeighbor(query, curBest, root, 0);
+  
 
-    return Point<Dim>();
+    return curBest;
 }
 
+template <int Dim>
+void KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query, Point<Dim>& curBest, KDTreeNode * node, int curDim) const {
+  if (node == NULL) return;
+  Point<Dim> split(query);
+  split[curDim] = node->point[curDim];
+  if (smallerDimVal(query, node->point, curDim)) {
+    findNearestNeighbor(query, curBest, node->left, (curDim + 1) % Dim);
+    if (shouldReplace(query, curBest, node->point)) {
+      curBest = node->point;
+    }
+    if (shouldReplace(query, curBest, split)) {
+      findNearestNeighbor(query, curBest, node->right, (curDim + 1) % Dim);
+    }
+  }
+  else {
+    findNearestNeighbor(query, curBest, node->right, (curDim + 1) % Dim);
+    if (shouldReplace(query, curBest, node->point)) {
+      curBest = node->point;
+    }
+    if (shouldReplace(query, curBest, split)) {
+      findNearestNeighbor(query, curBest, node->left, (curDim + 1) % Dim);
+    }
+  }
+}
