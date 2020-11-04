@@ -259,7 +259,25 @@ class KDTree
     /**
      * @todo Add your helper functions here.
      */
-};
+    KDTreeNode * buildKDTree(vector<Point<Dim>>& points, 
+                             int first, 
+                             int last, 
+                             int curDim);
+
+    void select(vector<Point<Dim>>& points,
+                    int first,
+                    int last, 
+                    int k, 
+                    int curDim);
+    int partition(vector<Point<Dim>>& points, 
+                  int first, 
+                  int last, 
+                  int pivotIndex, 
+                  int curDim);
+    
+    KDTreeNode * copyKDTree(KDTreeNode * other);
+    KDTreeNode * deleteKDTree();
+  };
 
 #include "kdtree.hpp"
 #include "kdtree_extras.hpp"
