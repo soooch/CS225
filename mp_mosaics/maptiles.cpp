@@ -21,7 +21,25 @@ MosaicCanvas* mapTiles(SourceImage const& theSource,
     /**
      * @todo Implement this function!
      */
+    auto canvas = new MosaicCanvas(theSource.getRows(), theSource.getColumns());
+    
+    vector<Point<3>> tileColors(theTiles.size());
+    transform(theTiles.begin(), theTiles.end(), tileColors.begin(), 
+                [](TileImage tile){return convertToXYZ(tile.getAverageColor());});
+    KDTree<3> tileKD(tileColors);
 
-    return NULL;
+    for (int i = 0; i < theSource.getRows(); i++) {
+        for (int j = 0; j < theSource.getColumns(); j++) {
+            canvas->setTile(i, j, 
+                &theTiles[
+                    find(tileColors.begin(), tileColors.end(), 
+                        tileKD.findNearestNeighbor(convertToXYZ(theSource.getRegionColor(i, j)))
+                    ) - tileColors.begin()
+                ]
+            );
+        }
+    }
+
+    return canvas;
 }
 
