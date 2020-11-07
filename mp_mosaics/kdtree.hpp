@@ -119,7 +119,16 @@ void KDTree<Dim>::select(vector<Point<Dim>>& points,
     return;
   }
   int pivotIndex = first + (last - first) / 2;
-  pivotIndex = partition(points, first, last, pivotIndex, curDim);
+  auto pivotValue = points[pivotIndex];
+  std::swap(points[pivotIndex], points[last]);
+  pivotIndex = first;
+  for (int i = first; i < last; i++) {
+    if (smallerDimVal(points[i], pivotValue, curDim)) {
+      std::swap(points[pivotIndex], points[i]);
+      pivotIndex++;
+    }
+  }
+  std::swap(points[last], points[pivotIndex]);
   if (k == pivotIndex) {
     return;
   }
@@ -129,26 +138,6 @@ void KDTree<Dim>::select(vector<Point<Dim>>& points,
   else {
     return select(points, pivotIndex + 1, last, k, curDim);
   }
-}
-
-template <int Dim>
-int KDTree<Dim>::partition(vector<Point<Dim>>& points, 
-              int first, 
-              int last, 
-              int pivotIndex, 
-              int curDim)
-{
-  auto pivotValue = points[pivotIndex];
-  std::swap(points[pivotIndex], points[last]);
-  int storeIndex = first;
-  for (int i = first; i < last; i++) {
-    if (smallerDimVal(points[i], pivotValue, curDim)) {
-      std::swap(points[storeIndex], points[i]);
-      storeIndex++;
-    }
-  }
-  std::swap(points[last], points[storeIndex]);
-  return storeIndex;
 }
 
 

@@ -265,7 +265,6 @@ class KDTree
     KDTreeNode * buildKDTree(vector<Point<Dim>>& points, int first, int last, int curDim);
 
     void select(vector<Point<Dim>>& points, int first, int last, int k, int curDim);
-    int partition(vector<Point<Dim>>& points, int first, int last, int pivotIndex, int curDim);
     
     KDTreeNode * copyKDTree(KDTreeNode * other);
     void deleteKDTree(KDTreeNode * curr);

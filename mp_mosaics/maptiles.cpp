@@ -6,7 +6,6 @@
 #include <iostream>
 #include <map>
 #include "maptiles.h"
-#include <chrono>
 #include <unordered_map>
 //#include "cs225/RGB_HSL.h"
 
@@ -19,14 +18,15 @@ Point<3> convertToXYZ(LUVAPixel pixel) {
 
 namespace std
 {
-    template<> struct hash<Point<3>>
+    template<int Dim> struct hash<Point<Dim>>
     {
-        std::size_t operator()(Point<3> const& p) const noexcept
+        std::size_t operator()(Point<Dim> const& p) const noexcept
         {
-            std::size_t h1 = std::hash<double>{}(p[0]);
-            std::size_t h2 = std::hash<double>{}(p[1]);
-            std::size_t h3 = std::hash<double>{}(p[0]);
-            return h1 ^ (h2 << 1) ^ (h3 >> 1); // or use boost::hash_combine
+            std::size_t h = std::hash<double>{}(p[0]);
+            for (int i = 1; i < Dim; i++) {
+                h ^= std::hash<double>{}(p[i]);
+            }
+            return h; // or use boost::hash_combine
         }
     };
 }
@@ -37,33 +37,27 @@ MosaicCanvas* mapTiles(SourceImage const& theSource,
     /**
      * @todo Implement this function!
      */
-    auto start = std::chrono::high_resolution_clock::now();
     auto canvas = new MosaicCanvas(theSource.getRows(), theSource.getColumns());
     
     vector<Point<3>> tileColors(theTiles.size());
     transform(theTiles.begin(), theTiles.end(), tileColors.begin(), 
                 [](TileImage tile){return convertToXYZ(tile.getAverageColor());});
     KDTree<3> tileKD(tileColors);
-    std::unordered_map<Point<3>, int> tileMap;
+    std::unordered_map<Point<3>, TileImage*> tileMap;
     for (unsigned long i = 0; i < tileColors.size(); i++) {
-        tileMap[tileColors[i]] = i;
+        tileMap[tileColors[i]] = &theTiles[i];
     }
 
 
     for (int i = 0; i < theSource.getRows(); i++) {
         for (int j = 0; j < theSource.getColumns(); j++) {
             canvas->setTile(i, j, 
-                &theTiles[tileMap[
+                tileMap[
                     tileKD.findNearestNeighbor(convertToXYZ(theSource.getRegionColor(i, j)))
-                ]]
+                ]
             );
         }
     }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << std::endl << "mosaic creation: " << duration.count() << std::endl;
-    start = stop;
-
     return canvas;
 }
 
