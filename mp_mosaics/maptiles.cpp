@@ -44,7 +44,7 @@ MosaicCanvas* mapTiles(SourceImage const& theSource,
     
     KDTree<3> tileKD(tileColors);
 
-    std::unordered_map<Point<3>, TileImage*> tileMap;
+    std::unordered_map<Point<3>, TileImage*> tileMap(tileColors.size());
     for (unsigned long i = 0; i < tileColors.size(); i++) {
         tileMap[tileColors[i]] = &theTiles[i];
     }
