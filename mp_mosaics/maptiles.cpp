@@ -26,7 +26,7 @@ namespace std
             for (int i = 1; i < Dim; i++) {
                 h ^= std::hash<double>{}(p[i]);
             }
-            return h; // or use boost::hash_combine
+            return h;
         }
     };
 }
@@ -37,18 +37,22 @@ MosaicCanvas* mapTiles(SourceImage const& theSource,
     /**
      * @todo Implement this function!
      */
-    auto canvas = new MosaicCanvas(theSource.getRows(), theSource.getColumns());
     
     vector<Point<3>> tileColors(theTiles.size());
     transform(theTiles.begin(), theTiles.end(), tileColors.begin(), 
                 [](TileImage tile){return convertToXYZ(tile.getAverageColor());});
+    
     KDTree<3> tileKD(tileColors);
+
     std::unordered_map<Point<3>, TileImage*> tileMap;
     for (unsigned long i = 0; i < tileColors.size(); i++) {
         tileMap[tileColors[i]] = &theTiles[i];
     }
+    
+    tileColors.clear();
 
-
+    auto canvas = new MosaicCanvas(theSource.getRows(), theSource.getColumns());
+    
     for (int i = 0; i < theSource.getRows(); i++) {
         for (int j = 0; j < theSource.getColumns(); j++) {
             canvas->setTile(i, j, 
@@ -60,4 +64,3 @@ MosaicCanvas* mapTiles(SourceImage const& theSource,
     }
     return canvas;
 }
-
