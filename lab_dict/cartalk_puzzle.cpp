@@ -10,6 +10,7 @@
 
 #include "cartalk_puzzle.h"
 
+#include <iostream>
 using namespace std;
 
 /**
@@ -32,6 +33,7 @@ vector<std::tuple<std::string, std::string, std::string>> cartalk_puzzle(Pronoun
     if (wordsFile.is_open()) {
         /* Reads a line from `wordsFile` into `word` until the file ends. */
         while (getline(wordsFile, word)) {
+                    cout << word << std::endl;
             if (d.homophones(word, word.substr(1))) {
                 if (d.homophones(word, word[0] + word.substr(2))) {
                     ret.push_back(std::make_tuple(word, word.substr(1), word[0] + word.substr(2)));
