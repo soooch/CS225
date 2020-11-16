@@ -26,5 +26,18 @@ vector<std::tuple<std::string, std::string, std::string>> cartalk_puzzle(Pronoun
     vector<std::tuple<std::string, std::string, std::string>> ret;
 
     /* Your code goes here! */
+    ifstream wordsFile(word_list_fname);
+    string word;
+    
+    if (wordsFile.is_open()) {
+        /* Reads a line from `wordsFile` into `word` until the file ends. */
+        while (getline(wordsFile, word)) {
+            if (d.homophones(word, word.substr(1))) {
+                if (d.homophones(word, word[0] + word.substr(2))) {
+                    ret.push_back(std::make_tuple(word, word.substr(1), word[0] + word.substr(2)));
+                }
+            }
+        }
+    }
     return ret;
 }
