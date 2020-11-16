@@ -3,38 +3,47 @@
 #include <iostream>
 
 void DisjointSets::addelements(int num) {
-  _arena.insert(_arena.end(), num, -1);
+  arena_.insert(arena_.end(), num, -1);
 }
 
 int DisjointSets::find(int elem) {
   std::vector<int> pathNodes;
-  while (_arena[elem] >=0) {
+  while (arena_[elem] >=0) {
     pathNodes.push_back(elem);
-    elem = _arena[elem];
+    elem = arena_[elem];
   }
   for (auto node : pathNodes) {
-    _arena[node] = elem;
+    arena_[node] = elem;
   }
+  std::cout << "find" << std::endl;
+  for (int elem : arena_) {
+    std::cout << elem << " ";
+  }
+  std::cout << std::endl << std::endl;
   return elem;
 }
 
 void DisjointSets::setunion(int a, int b) {
+  std::cout << "setunion" << std::endl;
   a = find(a);
   b = find(b);
-  int size_a = size(a);
-  int size_b = size(b);
-  if (size_a < size_b) {
-    _arena[b] += _arena[a];
-    _arena[a] = b;
+  if (a == b) return;
+  if (arena_[b] < arena_[a]) {
+    arena_[b] += arena_[a];
+    arena_[a] = b;
   }
   else {
-    _arena[a] += _arena[b];
-    _arena[b] = a;
+    arena_[a] += arena_[b];
+    arena_[b] = a;
   }
+  for (int elem : arena_) {
+    std::cout << elem << " ";
+  }
+  std::cout << std::endl << std::endl;
 }
 
 int DisjointSets::size(int elem) {
-  return -_arena[find(elem)];
+  return -arena_[find(elem)];
 }
 
 //int findCircleNum(std::vector<std::vector<int>>& M) {

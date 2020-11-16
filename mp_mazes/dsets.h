@@ -1,8 +1,9 @@
 /* Your code here! */
+#pragma once
 #include <vector>
 
 class DisjointSets {
-  std::vector<int> _arena;
+  std::vector<int> arena_;
   public:
   void addelements(int num);
   int find(int elem);
