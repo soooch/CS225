@@ -86,7 +86,7 @@ std::vector<int> SquareMaze::solveMaze() {
       }
     }
   }
-  std::vector<int> ret;
+  std::vector<int> ret(bestPath.size() - 1);
   std::transform(bestPath.rbegin(), bestPath.rend() - 1, ret.begin(), [](int dir){return dir ^ 2;});
   return ret;
 }
