@@ -2,6 +2,9 @@
 #include "dsets.h"
 #include "cs225/PNG.h"
 #include <bitset>
+#include <numeric>
+#include <random>
+#include <utility>
 
 class SquareMaze {
   public:
@@ -13,6 +16,7 @@ class SquareMaze {
   void setWall(int x, int y, int dir, bool exists);
   std::vector<int> solveMaze();
   private:
+  bool findPath(int x, int y, std::vector<int> &path);
   int width_, height_;
   std::vector<std::bitset<2>> tiles_;
   DisjointSets dset_;

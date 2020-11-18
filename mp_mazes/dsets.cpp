@@ -15,16 +15,10 @@ int DisjointSets::find(int elem) {
   for (auto node : pathNodes) {
     arena_[node] = elem;
   }
-  std::cout << "find" << std::endl;
-  for (int elem : arena_) {
-    std::cout << elem << " ";
-  }
-  std::cout << std::endl << std::endl;
   return elem;
 }
 
 void DisjointSets::setunion(int a, int b) {
-  std::cout << "setunion" << std::endl;
   a = find(a);
   b = find(b);
   if (a == b) return;
@@ -36,10 +30,6 @@ void DisjointSets::setunion(int a, int b) {
     arena_[a] += arena_[b];
     arena_[b] = a;
   }
-  for (int elem : arena_) {
-    std::cout << elem << " ";
-  }
-  std::cout << std::endl << std::endl;
 }
 
 int DisjointSets::size(int elem) {

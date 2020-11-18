@@ -5,12 +5,13 @@ bool SquareMaze::canTravel(int x, int y, int dir) const {
   int coord = x + y * width_;
   // no branches!!!
   bool posDirs[4];
-  posDirs[0] = true;
-  posDirs[1] = true;
+  posDirs[0] = (width_ - 1) - x;
+  posDirs[1] = (height_ - 1) - y;
   posDirs[2] = x;
   posDirs[3] = y;
   int offset = ((dir & 1) * (1 - width_) - 1) * (dir >> 1) * posDirs[dir];
-  return posDirs[dir] & tiles_[coord + offset][dir & 1];
+  bool canTravel = posDirs[dir] && !tiles_[coord + offset][dir & 1];
+  return posDirs[dir] && !tiles_[coord + offset][dir & 1];
 }
 
 cs225::PNG * SquareMaze::drawMaze() const {
@@ -26,47 +27,47 @@ void SquareMaze::makeMaze(int width, int height) {
   height_ = height;
   int size = width * height;
   tiles_ = std::vector<std::bitset<2>>(size, 0b11);
+  auto rng = std::mt19937(rand());
+  std::vector<std::pair<int, int>> coords(size);
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) {
+      coords[x + y * width] = std::make_pair(x, y);
+    }
+  }
+  std::shuffle(coords.begin(), coords.end(), rng);
   dset_.addelements(size);
-  int rejections = 0;
-  while (rejections < size) {
-    int randy = rand() % height;
-    int randx = rand() % width;
-    bool posDirs[4];
-    posDirs[0] = width - randx - 1;
-    posDirs[1] = height - randy - 1;
-    posDirs[2] = randx;
-    posDirs[3] = randy;
-
-    int randTile = randy * width + randx;
-    int dir = rand() % 4;
-    dir ^= !posDirs[dir] << 1;
-    int offset = (1 - (dir & 2)) * ((dir & 1) * (width - 1) + 1);
-    if (dset_.find(randTile) != dset_.find(randTile + offset)) {
-      dset_.setunion(randTile, randTile + offset);
-      offset *= dir >> 1;
-      tiles_[randTile + offset][dir & 1] = false;
-      rejections = 0;
+  for (auto coord : coords) {
+    int x = coord.first; int y = coord.second;
+    int tile = y * width + x;
+    if (rand() % 2) {
+      if (x < width - 1) {
+        if (dset_.find(tile) != dset_.find(tile + 1)) {
+          dset_.setunion(tile, tile + 1);
+          tiles_[tile][0] = false;
+        }
+      }
+      if (y < height - 1) {
+        if (dset_.find(tile) != dset_.find(tile + width)) {
+          dset_.setunion(tile, tile + width);
+          tiles_[tile][1] = false;
+        }
+      }
     }
     else {
-      // TODO: actually figure out the end case
-      std::cout << "rip" << std::endl;
-      rejections++;
+      if (y < height - 1) {
+        if (dset_.find(tile) != dset_.find(tile + width)) {
+          dset_.setunion(tile, tile + width);
+          tiles_[tile][1] = false;
+        }
+      }
+      if (x < width - 1) {
+        if (dset_.find(tile) != dset_.find(tile + 1)) {
+          dset_.setunion(tile, tile + 1);
+          tiles_[tile][0] = false;
+        }
+      }
     }
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      std::cout << tiles_[i * width + j] << " ";
-    }
-    std::cout << std::endl;
   }
-  std::cout << std::endl;
-  }
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      std::cout << tiles_[i * width + j] << " ";
-    }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
 }
 
 void SquareMaze::setWall(int x, int y, int dir, bool exists) {
@@ -74,6 +75,33 @@ void SquareMaze::setWall(int x, int y, int dir, bool exists) {
 }
 
 std::vector<int> SquareMaze::solveMaze() {
-  return std::vector<int>();
+  std::vector<int> bestPath;
+  for (int i = 0; i < width_; i++) {
+    int end = i + (height_ - 1) * width_;
+    if (dset_.find(end) == dset_.find(0)) {
+      std::vector<int> path(1, 3);
+      findPath(i, height_ - 1, path);
+      if (path.size() > bestPath.size()) {
+        bestPath = std::move(path);
+      }
+    }
+  }
+  std::vector<int> ret;
+  std::transform(bestPath.rbegin(), bestPath.rend() - 1, ret.begin(), [](int dir){return dir ^ 2;});
+  return ret;
 }
 
+bool SquareMaze::findPath(int x, int y, std::vector<int> &path) { 
+  if (x == 0 && y == 0) return true;
+  for (int dir = 3; dir >=0; dir--) {
+    if (dir != (path.back() ^ 2) && canTravel(x, y, dir)) {
+      path.push_back(dir);
+      int offset_sign = 1 - (dir & 2);
+      if (findPath(x + !(dir & 1) * offset_sign, y + (dir & 1) * offset_sign, path)) {
+        return true;
+      };
+      path.pop_back();
+    }
+  }
+  return false;
+}
