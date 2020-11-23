@@ -88,6 +88,17 @@ std::vector<Edge> NimLearner::playRandomGame() const {
  */
 void NimLearner::updateEdgeWeights(const std::vector<Edge> & path) {
  /* Your code goes here! */
+ int win = -1;
+  if (path.back().dest.substr(1, 1) == "2") {
+    win = 1;
+  }
+  for (Edge edge : path) {
+    int weightUpdate = win;
+    if (edge.source.substr(1, 1) == "2") {
+      weightUpdate = -weightUpdate;
+    }
+    g_.setEdgeWeight(edge.source, edge.dest, g_.getEdgeWeight(edge.source, edge.dest) + weightUpdate);
+  }
 }
 
 /**
