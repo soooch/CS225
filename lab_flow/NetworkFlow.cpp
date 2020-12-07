@@ -22,6 +22,24 @@ NetworkFlow::NetworkFlow(Graph & startingGraph, Vertex source, Vertex sink) :
   g_(startingGraph), residual_(Graph(true,true)), flow_(Graph(true,true)), source_(source), sink_(sink) {
 
   // YOUR CODE HERE
+  /*
+  residual_ = startingGraph;
+  flow_ = startingGraph;
+  for (Edge edge : flow_.getEdges()) {
+    flow_.setEdgeWeight(edge.source, edge.dest, 0);
+  }
+  */
+  for(Edge temp : g_.getEdges()){
+   	 flow_.insertEdge(temp.source, temp.dest);
+   	 flow_.setEdgeWeight(temp.source, temp.dest, 0);
+   	 residual_.insertEdge(temp.source, temp.dest);
+   	 residual_.setEdgeWeight(temp.source, temp.dest, temp.getWeight());
+   	 residual_.insertEdge(temp.dest, temp.source);
+   	 residual_.setEdgeWeight(temp.dest, temp.source, 0);
+    }
+
+    maxFlow_ = 0;
+
 }
 
   /**
@@ -84,7 +102,24 @@ bool NetworkFlow::findAugmentingPath(Vertex source, Vertex sink, std::vector<Ver
 
 int NetworkFlow::pathCapacity(const std::vector<Vertex> & path) const {
   // YOUR CODE HERE
-  return 0;
+  /*
+  int min_weight = INT_MAX;
+  for (auto it = path.begin(); it < path.end() - 1; it++) {
+    min_weight = std::min(min_weight, residual_.getEdge(*it, *(it + 1)).getWeight());
+  }
+  return min_weight;
+  */
+ int FCAP;  
+    for(unsigned long i = 0; i < path.size()-1; i++){
+   	 if(i == 0){FCAP = residual_.getEdgeWeight(path[i], path[i+1]);}
+   	 else{
+   		 if(FCAP > residual_.getEdgeWeight(path[i], path[i+1])){
+   			 FCAP = residual_.getEdgeWeight(path[i], path[i+1]);
+   		 }
+   	 }
+    }
+  return FCAP;
+
 }
 
   /**
@@ -97,6 +132,40 @@ int NetworkFlow::pathCapacity(const std::vector<Vertex> & path) const {
 
 const Graph & NetworkFlow::calculateFlow() {
   // YOUR CODE HERE
+  /*
+  vector<Vertex> path;
+  while (findAugmentingPath(source_, sink_, path)) {
+    int cap = pathCapacity(path);
+    for (auto it = path.begin(); it < path.end() - 1; it++) {
+      std::cout << *it << std::endl;
+      if (flow_.edgeExists(*it, *(it + 1))) {
+        flow_.setEdgeWeight(*it, *(it + 1), flow_.getEdge(*it, *(it + 1)).getWeight() + cap);
+        residual_.setEdgeWeight(*it, *(it + 1), residual_.getEdgeWeight(*it, *(it + 1)) - cap);
+      }
+      else {
+        flow_.setEdgeWeight(*(it + 1), *it, flow_.getEdge(*(it + 1), *it).getWeight() - cap);
+        residual_.setEdgeWeight(*(it + 1), *it, residual_.getEdgeWeight(*(it + 1), *it) + cap);
+      }
+    }
+  }
+  */
+ vector <Vertex> path;
+    while(findAugmentingPath(source_, sink_, path)){ //1
+   	 int PCAP = pathCapacity(path); //2
+   	 for(unsigned long i = 0; i < path.size()-1; i++){  //3.1
+   		 if(flow_.edgeExists(path[i], path[i+1])){  // Add to corresponding path
+   			 flow_.setEdgeWeight(path[i], path[i+1], flow_.getEdgeWeight(path[i], path[i+1]) + PCAP);
+   		 }
+   		 else{ //In case of opposite direction
+   			 flow_.setEdgeWeight(path[i+1], path[i], flow_.getEdgeWeight(path[i+1], path[i]) - PCAP);
+   		 }
+   		 residual_.setEdgeWeight(path[i], path[i+1], residual_.getEdgeWeight(path[i], path[i+1]) - PCAP); //3.2
+   		 residual_.setEdgeWeight(path[i+1], path[i], residual_.getEdgeWeight(path[i+1], path[i]) + PCAP); //3.3
+   	 }
+   	 maxFlow_ += PCAP;
+    }
+
+
   return flow_;
 }
 
