@@ -15,11 +15,80 @@ bool SquareMaze::canTravel(int x, int y, int dir) const {
 }
 
 cs225::PNG * SquareMaze::drawMaze() const {
-  return NULL;
+  cs225::PNG * mazePNG = new cs225::PNG(width_*10+1, height_*10+1);
+  for (unsigned int x = 10; x < mazePNG->width(); x++) {
+    mazePNG->getPixel(x, 0).l = 0;
+  }
+  for (unsigned int y = 0; y < mazePNG->height(); y++) {
+    mazePNG->getPixel(0, y).l = 0;
+  }
+
+  for (int x = 0; x < width_; x++) {
+    for (int y = 0; y < height_; y++) {
+      if (!canTravel(x, y, 0)) {
+        for (int k = 0; k <= 10; k++) {
+          mazePNG->getPixel((x+1)*10, y*10+k).l = 0;
+        }
+      }
+      if (!canTravel(x, y, 1)) {
+        for (int k = 0; k <= 10; k++) {
+          mazePNG->getPixel(x*10+k, (y+1)*10).l = 0;
+        }
+      }
+    }
+  }
+
+  return mazePNG;
 }
 
 cs225::PNG * SquareMaze::drawMazeWithSolution() {
-  return NULL;
+  cs225::PNG * mazePNG = drawMaze();
+  std::vector<int> solution = solveMaze();
+  unsigned x = 5;
+  unsigned y = 5;
+  for (int step : solution) {
+    switch (step)
+    {
+    case 0:
+      for (int k = 0; k <= 10; k++) {
+        mazePNG->getPixel(x + k, y).l = 0.5;
+        mazePNG->getPixel(x + k, y).s = 1.0;
+      }
+      x += 10;
+      break;
+    
+    case 1:
+      for (int k = 0; k <= 10; k++) {
+        mazePNG->getPixel(x, y + k).l = 0.5;
+        mazePNG->getPixel(x, y + k).s = 1.0;
+      }
+      y += 10;
+      break;
+    
+    case 2:
+      for (int k = 0; k <= 10; k++) {
+        mazePNG->getPixel(x - k, y).l = 0.5;
+        mazePNG->getPixel(x - k, y).s = 1.0;
+      }
+      x -= 10;
+      break;
+
+    case 3:
+      for (int k = 0; k <= 10; k++) {
+        mazePNG->getPixel(x, y - k).l = 0.5;
+        mazePNG->getPixel(x, y - k).s = 1.0;
+      }
+      y -= 10;
+      break;
+
+    default:
+      break;
+    }
+  }
+  for (int k = 0; k < 9; k++) {
+    mazePNG->getPixel(x - 4 + k, y + 5).l = 1.0;
+  }
+  return mazePNG;
 }
 
 void SquareMaze::makeMaze(int width, int height) {
