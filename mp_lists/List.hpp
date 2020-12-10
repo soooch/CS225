@@ -43,6 +43,7 @@ void List<T>::_destroy() {
     head_ = head_->next;
     delete head_->prev;
   }
+  delete head_;
   head_ = NULL;
   length_ = 0;
 }
@@ -335,5 +336,4 @@ typename List<T>::ListNode* List<T>::mergesort(ListNode * start, int chainLength
   /// @todo Graded in MP3.2
   if (chainLength == 1) return start;
   return merge(mergesort(split(start, chainLength/2), chainLength - chainLength/2), mergesort(start, chainLength/2));
-  return NULL;
 }
