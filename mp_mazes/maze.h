@@ -5,6 +5,8 @@
 #include <numeric>
 #include <random>
 #include <utility>
+#include <queue>
+#include <array>
 
 class SquareMaze {
   public:
@@ -17,7 +19,14 @@ class SquareMaze {
   std::vector<int> solveMaze();
   private:
   bool findPath(int x, int y, std::vector<int> &path);
+  std::vector<int> findPath(const int x, const int y);
   int width_, height_;
-  std::vector<std::bitset<2>> tiles_;
+  std::vector<std::array<bool, 2>> tiles_;
   DisjointSets dset_;
+  struct BFSNode {
+    bool visited;
+    bool isPath;
+    int dir;
+  };
+  std::vector<BFSNode> nodes_;
 };

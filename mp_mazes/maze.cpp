@@ -1,6 +1,5 @@
 /* Your code here! */
 #include "maze.h"
-
 bool SquareMaze::canTravel(int x, int y, int dir) const {
   int coord = x + y * width_;
   // no branches!!!
@@ -10,9 +9,41 @@ bool SquareMaze::canTravel(int x, int y, int dir) const {
   posDirs[2] = x;
   posDirs[3] = y;
   int offset = ((dir & 1) * (1 - width_) - 1) * (dir >> 1) * posDirs[dir];
-  bool canTravel = posDirs[dir] && !tiles_[coord + offset][dir & 1];
   return posDirs[dir] && !tiles_[coord + offset][dir & 1];
 }
+/*
+bool SquareMaze::canTravel(int x, int y, int dir) const {
+  int coord = x+y*width_;
+  switch (dir) {
+    case 0:
+      if (width_ - 1 - x) {
+        return !tiles_[coord][0];
+      }
+      return false;
+    
+    case 1:
+      if (height_ - 1 - y) {
+        return !tiles_[coord][1];
+      }
+      return false;
+    
+    case 2:
+      if (x) {
+        return !tiles_[coord - 1][0];
+      }
+      return false;
+
+    case 3:
+      if (y) {
+        return !tiles_[coord - width_][1];
+      }
+      return false;
+
+    default:
+     return false;
+  }
+}
+*/
 
 cs225::PNG * SquareMaze::drawMaze() const {
   cs225::PNG * mazePNG = new cs225::PNG(width_*10+1, height_*10+1);
@@ -95,7 +126,9 @@ void SquareMaze::makeMaze(int width, int height) {
   width_ = width;
   height_ = height;
   int size = width * height;
-  tiles_ = std::vector<std::bitset<2>>(size, 0b11);
+  tiles_ = std::vector<std::array<bool, 2>>(size, {true, true});
+  nodes_ = std::vector<BFSNode>(size, BFSNode {false, false, -1});
+  nodes_[0].isPath = true;
   auto rng = std::mt19937(rand());
   std::vector<std::pair<int, int>> coords(size);
   for (int x = 0; x < width; x++) {
@@ -148,18 +181,17 @@ std::vector<int> SquareMaze::solveMaze() {
   for (int i = 0; i < width_; i++) {
     int end = i + (height_ - 1) * width_;
     if (dset_.find(end) == dset_.find(0)) {
-      std::vector<int> path(1, 3);
-      findPath(i, height_ - 1, path);
+      std::vector<int> path = findPath(i, height_ - 1);
       if (path.size() > bestPath.size()) {
         bestPath = std::move(path);
       }
     }
   }
-  std::vector<int> ret(bestPath.size() - 1);
-  std::transform(bestPath.rbegin(), bestPath.rend() - 1, ret.begin(), [](int dir){return dir ^ 2;});
-  return ret;
+  nodes_ = std::vector<BFSNode>(tiles_.size(), BFSNode {false, false, -1});
+  return bestPath;
 }
 
+/*
 bool SquareMaze::findPath(int x, int y, std::vector<int> &path) { 
   if (x == 0 && y == 0) return true;
   for (int dir = 3; dir >=0; dir--) {
@@ -173,4 +205,72 @@ bool SquareMaze::findPath(int x, int y, std::vector<int> &path) {
     }
   }
   return false;
+}
+*/
+/*
+std::vector<int> SquareMaze::findPath(int x, int y) {
+  std::vector<bool> discovered(tiles_.size(), false);
+  std::queue<std::pair<std::array<int, 2>, std::vector<int>>> BFSQueue;
+  
+  BFSQueue.push(std::make_pair(std::array<int, 2>{x, y}, std::vector<int>()));
+
+  std::vector<int> path;
+
+  while (!BFSQueue.empty()) {
+    auto node = BFSQueue.front();
+    BFSQueue.pop();
+    if (node.first[0] == 0 && node.first[1] == 0) {
+      return node.second;
+    }
+    for (int dir = 3; dir >= 0; dir--) {
+      if (canTravel(node.first[0], node.first[1], dir)) {
+        std::array<int, 2> newCoord = {node.first[0] + ((1 - (dir&2))*!(dir&1)), node.first[1] + ((1 - (dir&2))*(dir&1))};
+        if (!discovered[newCoord[0] + newCoord[1] * width_]) {
+          discovered[newCoord[0] + newCoord[1] * width_] = true;
+          auto newPath(node.second);
+          newPath.push_back(dir);
+          BFSQueue.push(std::make_pair(newCoord, newPath));
+        }
+      }
+    }
+  }
+  return std::vector<int>();
+}
+*/
+
+std::vector<int> SquareMaze::findPath(const int x, const int y) {
+  std::queue<std::array<int, 2>> BFSQueue;
+  
+  BFSQueue.push({x, y});
+
+  while (!BFSQueue.empty()) {
+    auto coord = BFSQueue.front();
+    BFSQueue.pop();
+    if (nodes_[coord[0] + coord[1] * width_].isPath) {
+      break;
+    }
+    for (int dir = 3; dir >= 0; dir--) {
+      if (canTravel(coord[0], coord[1], dir)) {
+        std::array<int, 2> newCoord = {coord[0] + ((1 - (dir&2))*!(dir&1)), coord[1] + ((1 - (dir&2))*(dir&1))};
+        if (!nodes_[newCoord[0] + newCoord[1] * width_].visited) {
+          nodes_[newCoord[0] + newCoord[1] * width_].visited = true;
+          nodes_[newCoord[0] + newCoord[1] * width_].dir = dir ^ 2;
+          BFSQueue.push(newCoord);
+        }
+      }
+    }
+  }
+
+  std::for_each(nodes_.begin(), nodes_.end(), [](BFSNode & node){node.visited = false;});
+
+  std::vector<int> ret;
+  for (int i = 0, j = 0; i != x || j != y;) {
+    nodes_[i + j * width_].isPath = true;
+    const int dir = nodes_[i + j * width_].dir;
+    ret.push_back(dir);
+    i += ((1 - (dir&2))*!(dir&1));
+    j += ((1 - (dir&2))*(dir&1));
+  }
+
+  return ret;
 }
