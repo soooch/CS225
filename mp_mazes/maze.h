@@ -18,15 +18,15 @@ class SquareMaze {
   void setWall(int x, int y, int dir, bool exists);
   std::vector<int> solveMaze();
   private:
-  bool findPath(int x, int y, std::vector<int> &path);
   std::vector<int> findPath(const int x, const int y);
   int width_, height_;
+  size_t pathSize;
   std::vector<std::array<bool, 2>> tiles_;
   DisjointSets dset_;
   struct BFSNode {
-    bool visited;
     bool isPath;
     int dir;
   };
   std::vector<BFSNode> nodes_;
+  std::vector<bool> visited_;
 };

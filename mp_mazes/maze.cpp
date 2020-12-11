@@ -127,7 +127,9 @@ void SquareMaze::makeMaze(int width, int height) {
   height_ = height;
   int size = width * height;
   tiles_ = std::vector<std::array<bool, 2>>(size, {true, true});
-  nodes_ = std::vector<BFSNode>(size, BFSNode {false, false, -1});
+  nodes_ = std::vector<BFSNode>(size, BFSNode {false, -1});
+  visited_ = std::vector<bool>(size, false);
+  pathSize = height_ * 2;
   nodes_[0].isPath = true;
   auto rng = std::mt19937(rand());
   std::vector<std::pair<int, int>> coords(size);
@@ -187,10 +189,49 @@ std::vector<int> SquareMaze::solveMaze() {
       }
     }
   }
-  nodes_ = std::vector<BFSNode>(tiles_.size(), BFSNode {false, false, -1});
+  std::fill(nodes_.begin(), nodes_.end(), BFSNode {false, -1});
+  nodes_[0].isPath = true;
   return bestPath;
 }
 
+std::vector<int> SquareMaze::findPath(const int x, const int y) {
+  std::queue<std::array<int, 2>> BFSQueue;
+  
+  BFSQueue.push({x, y});
+
+  while (!BFSQueue.empty()) {
+    auto coord = BFSQueue.front();
+    BFSQueue.pop();
+    if (nodes_[coord[0] + coord[1] * width_].isPath) {
+      break;
+    }
+    for (int dir = 3; dir >= 0; dir--) {
+      if (canTravel(coord[0], coord[1], dir)) {
+        std::array<int, 2> newCoord = {coord[0] + ((1 - (dir&2))*!(dir&1)), coord[1] + ((1 - (dir&2))*(dir&1))};
+        if (!visited_[newCoord[0] + newCoord[1] * width_]) {
+          visited_[newCoord[0] + newCoord[1] * width_] = true;
+          nodes_[newCoord[0] + newCoord[1] * width_].dir = dir ^ 2;
+          BFSQueue.push(newCoord);
+        }
+      }
+    }
+  }
+
+  std::fill(visited_.begin(), visited_.end(), false);
+
+  std::vector<int> ret;
+  ret.reserve(pathSize);
+  for (int i = 0, j = 0; i != x || j != y;) {
+    nodes_[i + j * width_].isPath = true;
+    const int dir = nodes_[i + j * width_].dir;
+    ret.push_back(dir);
+    i += ((1 - (dir&2))*!(dir&1));
+    j += ((1 - (dir&2))*(dir&1));
+  }
+  pathSize = ret.size();
+
+  return ret;
+}
 /*
 bool SquareMaze::findPath(int x, int y, std::vector<int> &path) { 
   if (x == 0 && y == 0) return true;
@@ -237,40 +278,3 @@ std::vector<int> SquareMaze::findPath(int x, int y) {
   return std::vector<int>();
 }
 */
-
-std::vector<int> SquareMaze::findPath(const int x, const int y) {
-  std::queue<std::array<int, 2>> BFSQueue;
-  
-  BFSQueue.push({x, y});
-
-  while (!BFSQueue.empty()) {
-    auto coord = BFSQueue.front();
-    BFSQueue.pop();
-    if (nodes_[coord[0] + coord[1] * width_].isPath) {
-      break;
-    }
-    for (int dir = 3; dir >= 0; dir--) {
-      if (canTravel(coord[0], coord[1], dir)) {
-        std::array<int, 2> newCoord = {coord[0] + ((1 - (dir&2))*!(dir&1)), coord[1] + ((1 - (dir&2))*(dir&1))};
-        if (!nodes_[newCoord[0] + newCoord[1] * width_].visited) {
-          nodes_[newCoord[0] + newCoord[1] * width_].visited = true;
-          nodes_[newCoord[0] + newCoord[1] * width_].dir = dir ^ 2;
-          BFSQueue.push(newCoord);
-        }
-      }
-    }
-  }
-
-  std::for_each(nodes_.begin(), nodes_.end(), [](BFSNode & node){node.visited = false;});
-
-  std::vector<int> ret;
-  for (int i = 0, j = 0; i != x || j != y;) {
-    nodes_[i + j * width_].isPath = true;
-    const int dir = nodes_[i + j * width_].dir;
-    ret.push_back(dir);
-    i += ((1 - (dir&2))*!(dir&1));
-    j += ((1 - (dir&2))*(dir&1));
-  }
-
-  return ret;
-}
